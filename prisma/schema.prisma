@@ -17,7 +17,7 @@ datasource db {
 model User{
   id      String @id @default(uuid()) // Using UUID as default
   email     String   @unique
-  password  String   // Add password field
+  password  String   
   firstName String?
   lastName  String?
   gender    Gender?
