@@ -8,6 +8,7 @@ CREATE TYPE "AgeGroup" AS ENUM ('INFANT', 'CHILD', 'ADULT');
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
+    
     "firstName" TEXT,
     "lastName" TEXT,
     "gender" "Gender",
