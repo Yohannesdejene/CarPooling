@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -22,6 +22,8 @@ model User{
   lastName  String?
   gender    Gender?
   age       Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
 }
 enum Gender {
