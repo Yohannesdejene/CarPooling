@@ -21,8 +21,6 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
   const validation = validateRegistration.safeParse(req.body);
 
   if (!validation.success) {
-    console.log("not validated");
-
     return res.status(402).json({ error: validation.error.message });
   }
 
