@@ -1,8 +1,6 @@
-import { NextApiRequest, NextApiResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/prisma/client";
 
 const validateRegistration = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -13,18 +11,35 @@ const validateRegistration = z.object({
   lastName: z.string().nonempty({ message: "Last name is required" }),
 });
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
+export async function POST(req: NextRequest, res: NextResponse) {
+  console.log("req.method", req.method);
   if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method not allowed" });
-  }
+    return NextResponse.json(
+      { error: "validation.error.message" },
+      { status: 402 }
+    );
 
+    // return res.status(405).json({ message: "Method not allowed" });
+  }
   const validation = validateRegistration.safeParse(req.body);
+  try {
+    if (!validation.success) {
+      console.log("not validated");
+      return NextResponse.json(
+        { error: validation.error.message.json },
+        { status: 402 }
+      );
 
-  if (!validation.success) {
-    console.log("not validated");
+      // return res.status(402).json({ error: validation.error.message });
+    }
+    return NextResponse.json(
+      { error: "validation.error.message" },
+      { status: 402 }
+    );
 
-    return res.status(402).json({ error: validation.error.message });
+    // return res.status(200).json({ message: "Hello from Next.js!" });
+  } catch (err) {
+    console.log("err", err);
+    return res.status(200).json({ message: "Error " });
   }
-
-  return res.status(200).json({ message: "Hello from Next.js!" });
 }
