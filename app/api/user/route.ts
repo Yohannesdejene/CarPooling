@@ -1,18 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import prisma from "@/prisma/client";
+// import { z } from "zod";
+import prisma from "@/lib/prisma";
+import {validateRegistration} from "@/lib/validationSchemas"
 
-const validateRegistration = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(5, { message: "Password must be at least 5 characters long" }),
-  firstName: z.string().nonempty({ message: "First name is required" }),
-  lastName: z.string().nonempty({ message: "Last name is required" }),
-});
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  console.log("req.body", body)
 
-export async function POST(req: NextRequest, res: NextResponse) {
-  console.log("req.method", req.method);
   if (req.method !== "POST") {
     return NextResponse.json(
       { error: "validation.error.message" },
@@ -21,25 +15,53 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     // return res.status(405).json({ message: "Method not allowed" });
   }
-  const validation = validateRegistration.safeParse(req.body);
+  const validation = validateRegistration.safeParse(body);
   try {
     if (!validation.success) {
       console.log("not validated");
+      console.log("validation.error", validation.error.format());
       return NextResponse.json(
-        { error: validation.error.message.json },
+        { message: validation.error.format() },
         { status: 402 }
       );
-
-      // return res.status(402).json({ error: validation.error.message });
     }
+
+    // By unique identifier
+    const oldUser = await prisma.user.findUnique({
+      where: {
+        email: body?.email,
+      },
+    });
+
+    if (oldUser) {
+      return NextResponse.json(
+        {
+          message: "Email already exists try again later ",
+        },
+
+        { status: 409 }
+      );
+    }
+    const user = await prisma.user.create({
+      data: {
+        email: body.email,
+        firstName: body.firstName,
+        lastName: body.lastName,
+        password: body.password,
+      },
+    });
     return NextResponse.json(
-      { error: "validation.error.message" },
-      { status: 402 }
+      { message: "User registered successfully ", data: user },
+
+      { status: 200 }
     );
 
     // return res.status(200).json({ message: "Hello from Next.js!" });
   } catch (err) {
     console.log("err", err);
-    return res.status(200).json({ message: "Error " });
+    return NextResponse.json(
+      { message: "Internal server error " },
+      { status: 500 }
+    );
   }
 }
