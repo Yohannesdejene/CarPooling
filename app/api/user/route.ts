@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
       { status: 402 }
     );
 
+    // return res.status(405).json({ message: "Method not allowed" });
   }
   const validation = validateRegistration.safeParse(body);
   try {
