@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-// import { z } from "zod";
 import prisma from "@/lib/prisma";
-import {validateRegistration} from "@/lib/validationSchemas"
+import { validateRegistration } from "@/lib/validationSchemas";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  console.log("req.body", body)
+  console.log("req.body", body);
 
   if (req.method !== "POST") {
     return NextResponse.json(
       { error: "validation.error.message" },
       { status: 402 }
     );
-
   }
   const validation = validateRegistration.safeParse(body);
   try {
